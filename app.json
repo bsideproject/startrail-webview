@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "mamgwanboo-webview",
+    "slug": "mamgwanboo-webview",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "mamgwanboo-webview"
+}
