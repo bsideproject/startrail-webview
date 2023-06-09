@@ -12,8 +12,6 @@ import {
     StatusBar,
     StyleSheet,
     useColorScheme,
-    Alert,
-    BackHandler
 } from 'react-native';
 import MyWebView from './components/MyWebView';
 

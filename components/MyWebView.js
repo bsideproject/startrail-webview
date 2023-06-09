@@ -7,19 +7,6 @@ import {WebView} from 'react-native-webview';
 const MyWebView= ({handleClose}) => {
     const BASE_URL = 'https://wmii-85b73.web.app';
     const [webview, setWebview] = useState();
-    const [goBackable, setGoBackable] = useState(false);
-    useEffect(() => {
-        const backHandler = BackHandler.addEventListener(
-            'hardwareBackPress',
-            () => {
-                console.log('goBackable', goBackable);
-                if (goBackable) webview.goBack();
-                else handleClose();
-                return true;
-            },
-        );
-        return () => backHandler.remove();
-    }, [goBackable]);
     useEffect(() => {
         if (webview && webview.clearCache) webview.clearCache();
     }, [webview]);
@@ -50,11 +37,6 @@ const MyWebView= ({handleClose}) => {
         })();
         true;
         `}
-            onMessage={(event) => {
-                const url = event.nativeEvent.data;
-                setGoBackable(url !== BASE_URL);
-                console.log('onMessage', event.nativeEvent.data);
-            }}
         />
     );
 };
