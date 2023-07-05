@@ -16,12 +16,11 @@ import {
 import MyWebView from './components/MyWebView';
 
 const App = () => {
-    const isDarkMode = useColorScheme() === 'dark';
 
     return (
         <>
-            <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
             <SafeAreaView style={styles.root}>
+                <StatusBar barStyle={"light-content"} />
                 <MyWebView />
             </SafeAreaView>
         </>
@@ -30,7 +29,9 @@ const App = () => {
 
 const styles = StyleSheet.create({
     root: {
-        flex: 1
+        flex: 1,
+        backgroundColor: "#1E1E1E",
+        color: "#000"
     },
 });
 
