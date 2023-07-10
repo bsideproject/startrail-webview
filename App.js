@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
     SafeAreaView,
     StatusBar,
@@ -14,14 +14,30 @@ import {
     useColorScheme,
 } from 'react-native';
 import MyWebView from './components/MyWebView';
+import Login from './components/Login';
 
 const App = () => {
+
+    const [isLogin, setLogin] = useState(false);
+    const [profile, setProfile] = useState();
 
     return (
         <>
             <SafeAreaView style={styles.root}>
                 <StatusBar barStyle={"light-content"} />
-                <MyWebView />
+                {/* // 삼항 연산자로 로그인 정보가 있으면 MyWebView 로 바로 넘기고
+                // 없으면 Login 화면으로 넘긴다. */}
+                {/* <MyWebView /> */}
+                {/* <Login /> */}
+                {
+                    isLogin ? 
+                        <MyWebView 
+                            profile={profile}
+                        /> 
+                        : <Login 
+                            setLogin={setLogin}
+                            setProfile={setProfile} />
+                }
             </SafeAreaView>
         </>
     );
