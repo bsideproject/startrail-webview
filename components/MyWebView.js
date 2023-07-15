@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {WebView} from 'react-native-webview';
 
 const MyWebView = ({route, navigation}) => {
-    const BASE_URL = 'https://startrail.loca.lt/';
+    const BASE_URL = 'https://www.byeoljachui.com/';
     const [webview, setWebview] = useState();
     useEffect(() => {
         if (webview && webview.clearCache) webview.clearCache();

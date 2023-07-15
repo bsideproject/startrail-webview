@@ -54,13 +54,12 @@ const Login = ({navigation}) => {
     const sighWithAppleInAndroid = async() => {
         const rawNonce = uuid();
         const state = uuid();
-
         try {
 
             appleAuthAndroid.configure(
                 {
-                    clientId : "com.byeoljachui.startrail",
-                    redirectUri : "https://startrail.loca.lt/AppleAuth",
+                    clientId : "startrail.beside.com",
+                    redirectUri : "https://www.byeoljachui.com/AppleAuth",
                     scope : appleAuthAndroid.Scope.ALL,
                     responseType : appleAuthAndroid.ResponseType.ALL,
                     nonce : rawNonce,
