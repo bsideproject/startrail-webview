@@ -1,11 +1,13 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {WebView} from 'react-native-webview';
 
-const MyWebView= ({handleClose}) => {
-    const BASE_URL = 'https://www.byeoljachui.com/';
+const MyWebView = ({route, navigation}) => {
+    const BASE_URL = 'https://startrail.loca.lt/';
     const [webview, setWebview] = useState();
     useEffect(() => {
         if (webview && webview.clearCache) webview.clearCache();
+        console.log("my webview!!");
+        console.log(JSON.stringify(route.params.userData));
     }, [webview]);
 
     const [token, setToken] = useState(''); // 토큰 상태 값
@@ -20,27 +22,14 @@ const MyWebView= ({handleClose}) => {
             mixedContentMode={'compatibility'}
             originWhitelist={['https://*', 'http://*']}
             overScrollMode={'never'}
-            // ref={(ref) => setWebview(ref)}
             onMessage={(event) => {
                 setToken(event.nativeEvent.data);
-                console.log(event.nativeEvent.data)
+                console.log("event data : " + event.nativeEvent.data);
             }}
             injectedJavaScript={`
                 (function() {
-                    function wrap(fn) {
-                    return function wrapper() {
-                        var res = fn.apply(this, arguments);
-                        window.ReactNativeWebView.postMessage(window.location.href);
-                        return res;
-                    }
-                    }
-                    history.pushState = wrap(history.pushState);
-                    history.replaceState = wrap(history.replaceState);
-                    window.addEventListener('popstate', function() {
-                    window.ReactNativeWebView.postMessage(window.location.href);
-                    });
+                    window.postMessage('${JSON.stringify(route.params)}', '*');
                 })();
-            true;
             `}
         />
     );
