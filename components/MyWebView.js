@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {useEffect, useRef, useState} from 'react';
 import {WebView} from 'react-native-webview';
 
@@ -6,8 +7,6 @@ const MyWebView = ({route, navigation}) => {
     const [webview, setWebview] = useState();
     useEffect(() => {
         if (webview && webview.clearCache) webview.clearCache();
-        console.log("my webview!!");
-        console.log(JSON.stringify(route.params.userData));
     }, [webview]);
 
     const [token, setToken] = useState(''); // 토큰 상태 값

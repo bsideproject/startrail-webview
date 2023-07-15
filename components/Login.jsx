@@ -6,6 +6,7 @@ import axios from 'axios';
 import { v4 as uuid } from 'uuid';
 import appleAuth, { appleAuthAndroid } from '@invertase/react-native-apple-authentication';
 import jwtDecode from 'jwt-decode';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login = ({navigation}) => {
 
@@ -17,6 +18,21 @@ const Login = ({navigation}) => {
     const [sequence, setSequence] = useState('');
 
     useEffect(() => {
+
+        const checkLoginStatus = async () => {
+            try {
+                const saveData = await AsyncStorage.getItem('saveData');
+                if (saveData) {
+                    const parsedData = JSON.parse(saveData);
+                    navigation.navigate('WebView', parsedData);
+                }
+            } catch (error) {
+                console.error('Error retrieving saveData:', error);
+            }
+        };
+
+        checkLoginStatus();
+
         if (Platform.OS === 'ios') {
             if (!appleAuth.isSupported) return;
 
@@ -156,14 +172,14 @@ const Login = ({navigation}) => {
             console.log("backend sequence : " + backendResponse.sequence);
             const jwtKey = await postUser(backendResponse.sequence);
 
-            console.log(jwtKey);
+            const sendData = {userData : backendResponse, jwtKey : jwtKey};
 
-            navigation.navigate('WebView', {userData : backendResponse, jwtKey : jwtKey});
+            await AsyncStorage.setItem('saveData', JSON.stringify(sendData))
+
+            navigation.navigate('WebView', sendData);
         } else {
 
             const userPatchRequest = convertResponse2PatchRequest(id, type, data);
-
-            console.log("user patch request : " + JSON.stringify(userPatchRequest));
 
             const userData = await patchUser(userPatchRequest);
             
@@ -171,8 +187,6 @@ const Login = ({navigation}) => {
                 setSequence(userData.sequence);
 
                 const jwtKey = await postUser(userData.sequence);
-
-                // console.log("jwt key : " + jwtKey);
 
                 navigation.navigate('Agreement', {userData : userData, jwtKey : jwtKey});
             }

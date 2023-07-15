@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {View, Text, Button} from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Agreement = ({route, navigation}) => {
 
@@ -10,11 +11,12 @@ const Agreement = ({route, navigation}) => {
     const checkRef1 = useRef(null);
     const checkRef2 = useRef(null);
 
-    // const [jwtKey, setJwtKey] = useState('');
+    const pressHandler = async() => {
 
-    // useEffect(() => {
-    //   setJwtKey(route.params.jwtKey);
-    // }, [])
+      await AsyncStorage.setItem('saveData', route.params);
+
+      navigation.navigate('WebView', route.params);
+    }
 
     return (
       <View style={styles.container}>
@@ -49,7 +51,7 @@ const Agreement = ({route, navigation}) => {
           <Button
             title="다음"
             disabled={!check1}
-            onPress={() => {navigation.navigate('WebView', route.params)}}
+            onPress={() => {pressHandler()}}
           />
         </View>
       </View>

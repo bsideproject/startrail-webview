@@ -23,36 +23,7 @@ const Stack = createStackNavigator();
 
 const App = () => {
 
-    const [isLogin, setLogin] = useState(false);
-
-    // async storage 로 로그인 데이터 있는지 확인
-    useEffect(() => {
-
-    }, [])
-
     return (
-        // <>
-        //     <SafeAreaView style={styles.root}>
-        //         <StatusBar barStyle={"light-content"} />
-        //         {/* // 삼항 연산자로 로그인 정보가 있으면 MyWebView 로 바로 넘기고
-        //         // 없으면 Login 화면으로 넘긴다. */}
-        //         {/* <MyWebView /> */}
-        //         {/* <Login /> */}
-        //         {
-        //             isLogin ? 
-        //                 <MyWebView 
-        //                     profile={profile}
-        //                     jwtKey={jwtKey}
-        //                 /> 
-        //                 : <Login 
-        //                     setLogin={setLogin}
-        //                     setProfile={setProfile} 
-        //                     jwtKey={jwtKey}
-        //                     setJwtKey={setJwtKey}  
-        //                 />
-        //         }
-        //     </SafeAreaView>
-        // </>
         <NavigationContainer>
             <Stack.Navigator>
                 <Stack.Screen name='Login' component={Login} options={{ headerShown: false }}/>
