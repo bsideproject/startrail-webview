@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Image, StyleSheet, TouchableOpacity, View, Platform, SafeAreaView, StatusBar } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View, Platform } from 'react-native';
 import { login, getProfile } from '@react-native-seoul/kakao-login';
-import MyWebView from './MyWebView';
-import axios from 'axios';
 import { v4 as uuid } from 'uuid';
 import appleAuth, { appleAuthAndroid } from '@invertase/react-native-apple-authentication';
 import jwtDecode from 'jwt-decode';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import UserStore from '../stores/UserStore';
 
 const Login = ({navigation}) => {
 
@@ -21,10 +20,10 @@ const Login = ({navigation}) => {
 
         const checkLoginStatus = async () => {
             try {
-                const saveData = await AsyncStorage.getItem('saveData');
+                const saveData = await AsyncStorage.getItem('jwtKey');
                 if (saveData) {
-                    const parsedData = JSON.parse(saveData);
-                    navigation.navigate('WebView', parsedData);
+                    // const parsedData = JSON.parse(saveData);
+                    navigation.navigate('WebView', saveData);
                 }
             } catch (error) {
                 console.error('Error retrieving saveData:', error);
@@ -49,6 +48,7 @@ const Login = ({navigation}) => {
             if (kakaoResponse.accessToken) {
 
                 let id = '';
+                console.log("access Token : " + kakaoResponse.accessToken);
 
                 const profile = await getProfile().then((res) => {
                     id = res.id;
@@ -161,166 +161,34 @@ const Login = ({navigation}) => {
     }
 
     const doLogin = async(id, type, data) => {
-        const userGetRequest = convertResponse2GetRequest(id, type);
 
-        const backendResponse = await getUser(userGetRequest);
+        const backendResponse = await UserStore.existsUser(id, type);
 
-        console.log("userGetRequest : " + JSON.stringify(userGetRequest));
         console.log("backendResponse : " + JSON.stringify(backendResponse));
 
-        if (backendResponse && backendResponse.sequence) { 
-            console.log("backend sequence : " + backendResponse.sequence);
-            const jwtKey = await postUser(backendResponse.sequence);
+        UserStore.setServiceUserId(id);
+        UserStore.setOauthServiceType(type);
+        UserStore.setProfile(data);
 
-            const sendData = {userData : backendResponse, jwtKey : jwtKey};
+        // 유저 정보가 있을 경우.
+        if (backendResponse) { 
+            
+            const jwtKey = await UserStore.signUser(id, type);
 
-            await AsyncStorage.setItem('saveData', JSON.stringify(sendData))
+            console.log("jwtKey : " + jwtKey);
 
-            navigation.navigate('WebView', sendData);
+            await AsyncStorage.setItem('jwtKey', jwtKey);
+
+            navigation.navigate('WebView', jwtKey);
         } else {
 
-            const userPatchRequest = convertResponse2PatchRequest(id, type, data);
-
-            const userData = await patchUser(userPatchRequest);
-            
-            if (userData && userData.sequence) {
-                setSequence(userData.sequence);
-
-                const jwtKey = await postUser(userData.sequence);
-
-                navigation.navigate('Agreement', {userData : userData, jwtKey : jwtKey});
-            }
+            navigation.navigate('Agreement');
         }
         
-    }
-
-    const convertResponse2GetRequest = (id, type) => {
-        const request = {
-            serviceUserId : id,
-            oauthServiceType : type
-        };
-
-        return request;
-    }
-
-    const getUser = async(request) => {
-
-        const uri = `${baseUrl}/api/users?oauthServiceType=${request.oauthServiceType}&serviceUserId=${request.serviceUserId}`
-
-        const response = await axios.get(uri)
-            .then(res => {return res.data;})
-            .catch(error => console.error(error));
-
-        return response;
-    }
-
-    const postUser = async(sequence) => {
-        const request = {
-            sequence : sequence
-        };
-
-        const response = await axios.post(`${baseUrl}/api/sign`, request, {
-            headers : {
-                "Content-Type" : "application/json"
-            }
-        }).then(res => {return res.data;})
-        .catch(error => console.error(error));
-
-        return response;
-    }
-
-    const patchUser = async(request) => {
-
-        const response = await axios.patch(`${baseUrl}/api/users`, request)
-            .then(res => {return res.data})
-            .catch(error => console.error(error));
-
-        return response;
-    }
-
-    const convertResponse2PatchRequest = (userId, serviceType, data) => {
-
-        let userInformation = {};
-
-        if (serviceType === 'KAKAO') {
-
-            console.log("data : " + JSON.stringify(data));
-
-            const birthday = data.birthday;
-    
-            const month = parseInt(birthday.slice(0,2));
-            const day = parseInt(birthday.slice(2));
-        
-            const birthDayObj = {
-                year : 0,
-                month : month,
-                day : day
-            };
-        
-            const sexType = data.gender;
-        
-            const ageRangeText = data.ageRange;
-        
-            let ageRange = 'UNDER_TEEN';
-    
-            switch(ageRangeText) {
-            case 'AGE_0_9' :
-                ageRange = 'UNDER_TEEN';
-                break;
-            case 'AGE_10_14' :
-                ageRange = 'TEENS';
-                break;
-            case 'AGE_15_19' :
-                ageRange = 'TEENS';
-                break;
-            case 'AGE_20_29' :
-                ageRange = 'TWENTIES';
-                break;
-            case 'AGE_30_39' :
-                ageRange = 'THIRTIES';
-                break;
-            case 'AGE_40_49' :
-                ageRange = 'FORTIES';
-                break;
-            case 'AGE_50_59' :
-                ageRange = 'FIFTIES';
-                break;
-            case 'AGE_60_69' :
-                ageRange = 'OVER_FIFTY';
-                break;
-            case 'AGE_70_79' :
-                ageRange = 'OVER_FIFTY';
-                break;
-            case 'AGE_80_89' :
-                ageRange = 'OVER_FIFTY';
-                break;
-            case 'AGE_90_ABOVE' :
-                ageRange = 'OVER_FIFTY';
-                break;
-            default :
-                break;
-            }
-
-            userInformation = {
-                profileImageLink : data.profileImageUrl,
-                profileNickname : data.nickname,
-                sexType : sexType,
-                ageRangeType : ageRange,
-                birth : birthDayObj
-            }
-        }
-
-        const request = {
-            oauthServiceType : serviceType,
-            serviceUserId : userId,
-            userInformation : userInformation
-        };
-
-        return request;
     }
 
     return (
-        
+        <View style={styles.page}>
             <View style={styles.container}>
                 <TouchableOpacity style={styles.buttonContainer}
                     onPress={signInWithKakao}>
@@ -331,14 +199,21 @@ const Login = ({navigation}) => {
                     <Image source={require("./images/AppleButton.png")} style={styles.buttonImage} />
                 </TouchableOpacity>
             </View>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
+    page : {
+        flex : 1,
+        backgroundColor : "#1E1E1E",
+    },
     container: {
         flex: 1,
         alignItems: "center",
         justifyContent : "center",
+        backgroundColor : "#1E1E1E",
+        marginTop: 500,
     },
     buttonContainer : {
         marginVertical: 10,

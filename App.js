@@ -18,19 +18,27 @@ import Login from './components/Login';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Agreement from './components/Agreement';
+import Term from './components/Term';
+import RegisterNickname from './components/RegisterNickname';
+import { Provider } from 'mobx-react';
+import UserStore from './stores/UserStore';
 
 const Stack = createStackNavigator();
 
 const App = () => {
 
     return (
-        <NavigationContainer>
-            <Stack.Navigator>
-                <Stack.Screen name='Login' component={Login} options={{ headerShown: false }}/>
-                <Stack.Screen name='Agreement' component={Agreement} options={{ headerShown: false }}/>
-                <Stack.Screen name='WebView' component={MyWebView} options={{ headerShown: false }}/>
-            </Stack.Navigator>
-        </NavigationContainer>
+        <Provider UserStore={UserStore}>
+            <NavigationContainer>
+                <Stack.Navigator>
+                    <Stack.Screen name='Login' component={Login} options={{ headerShown: false }}/>
+                    <Stack.Screen name='Agreement' component={Agreement} options={{ headerShown: false }}/>
+                    <Stack.Screen name='Term' component={Term} options={{ headerShown: false }}/>
+                    <Stack.Screen name='RegisterNickname' component={RegisterNickname} options={{ headerShown: false }}/>
+                    <Stack.Screen name='WebView' component={MyWebView} options={{ headerShown: false }}/>
+                </Stack.Navigator>
+            </NavigationContainer>
+        </Provider>
     );
 };
 

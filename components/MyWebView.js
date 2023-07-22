@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {WebView} from 'react-native-webview';
+import UserStore from '../stores/UserStore';
 
 const MyWebView = ({route, navigation}) => {
     const BASE_URL = 'https://www.byeoljachui.com/';
@@ -8,8 +9,6 @@ const MyWebView = ({route, navigation}) => {
     useEffect(() => {
         if (webview && webview.clearCache) webview.clearCache();
     }, [webview]);
-
-    const [token, setToken] = useState(''); // 토큰 상태 값
 
     return (
         <WebView
@@ -22,12 +21,20 @@ const MyWebView = ({route, navigation}) => {
             originWhitelist={['https://*', 'http://*']}
             overScrollMode={'never'}
             onMessage={(event) => {
-                setToken(event.nativeEvent.data);
+
+                const message = event.nativeEvent.data;
                 console.log("event data : " + event.nativeEvent.data);
+
+                if (message === "logout") {
+                    navigation.navigate('Login');
+
+                    AsyncStorage.removeItem('jwtKey');
+                }
+
             }}
             injectedJavaScript={`
                 (function() {
-                    window.postMessage('${JSON.stringify(route.params)}', '*');
+                    window.postMessage('${JSON.stringify(UserStore.getJwtKey)}', '*');
                 })();
             `}
         />
