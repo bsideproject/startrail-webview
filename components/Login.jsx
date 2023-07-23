@@ -22,8 +22,9 @@ const Login = ({navigation}) => {
             try {
                 const saveData = await AsyncStorage.getItem('jwtKey');
                 if (saveData) {
+                    UserStore.setJwtKey(saveData);
                     // const parsedData = JSON.parse(saveData);
-                    navigation.navigate('WebView', saveData);
+                    navigation.navigate('WebView');
                 }
             } catch (error) {
                 console.error('Error retrieving saveData:', error);
@@ -194,10 +195,10 @@ const Login = ({navigation}) => {
                     onPress={signInWithKakao}>
                     <Image source={require('./images/KaKaoButton.png')} style={styles.buttonImage} />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.buttonContainer}
+                {/* <TouchableOpacity style={styles.buttonContainer}
                     onPress={Platform.OS === 'android' ? sighWithAppleInAndroid : sighWithAppleInIOS}>
                     <Image source={require("./images/AppleButton.png")} style={styles.buttonImage} />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
         </View>
     );
