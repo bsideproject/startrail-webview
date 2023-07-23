@@ -105,6 +105,9 @@ const styles = StyleSheet.create({
         width : 350,
         height : 50,
         marginTop : -20,
+        borderRadius : 12,
+        paddingLeft : 16,
+        paddingRight : 16,
     },
     warning : {
         color : '#FA7F64',
