@@ -23,6 +23,7 @@ const Login = ({navigation}) => {
                 const saveData = await AsyncStorage.getItem('jwtKey');
                 if (saveData) {
                     UserStore.setJwtKey(saveData);
+
                     // const parsedData = JSON.parse(saveData);
                     navigation.navigate('WebView');
                 }

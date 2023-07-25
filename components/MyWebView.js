@@ -34,7 +34,7 @@ const MyWebView = ({route, navigation}) => {
             }}
             injectedJavaScript={`
                 (function() {
-                    window.postMessage('${JSON.stringify(UserStore.getJwtKey)}', '*');
+                    window.postMessage('${UserStore.getJwtKey}', '*');
                 })();
             `}
         />
