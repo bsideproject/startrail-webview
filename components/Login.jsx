@@ -6,6 +6,7 @@ import appleAuth, { appleAuthAndroid } from '@invertase/react-native-apple-authe
 import jwtDecode from 'jwt-decode';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import UserStore from '../stores/UserStore';
+import { ImageBackground } from 'react-native';
 
 const Login = ({navigation}) => {
 
@@ -191,16 +192,19 @@ const Login = ({navigation}) => {
 
     return (
         <View style={styles.page}>
-            <View style={styles.container}>
-                <TouchableOpacity style={styles.buttonContainer}
-                    onPress={signInWithKakao}>
-                    <Image source={require('./images/KaKaoButton.png')} style={styles.buttonImage} />
-                </TouchableOpacity>
-                {/* <TouchableOpacity style={styles.buttonContainer}
-                    onPress={Platform.OS === 'android' ? sighWithAppleInAndroid : sighWithAppleInIOS}>
-                    <Image source={require("./images/AppleButton.png")} style={styles.buttonImage} />
-                </TouchableOpacity> */}
-            </View>
+            <ImageBackground source={require('./images/Login_Background.png')} 
+                style={styles.bgImg}>
+                <View style={styles.container}>
+                    <TouchableOpacity style={styles.buttonContainer}
+                        onPress={signInWithKakao}>
+                        <Image source={require('./images/KaKaoButton.png')} style={styles.buttonImage} />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.buttonContainer}
+                        onPress={Platform.OS === 'android' ? sighWithAppleInAndroid : sighWithAppleInIOS}>
+                        <Image source={require("./images/AppleButton.png")} style={styles.buttonImage} />
+                    </TouchableOpacity>
+                </View>
+            </ImageBackground>
         </View>
     );
 };
@@ -208,8 +212,12 @@ const Login = ({navigation}) => {
 const styles = StyleSheet.create({
     page : {
         flex : 1,
-        backgroundColor : "#1E1E1E",
     },
+    bgImg : {
+        width : '100%',
+        height : '100%',
+    }
+    ,
     container: {
         flex: 1,
         alignItems: "center",
