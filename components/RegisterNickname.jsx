@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-nativ
 import UserStore from '../stores/UserStore';
 import { useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const RegisterNickname = () => {
 
@@ -38,10 +39,18 @@ const RegisterNickname = () => {
         const response = await UserStore.postUser(userId, serviceType, profile, agreement);
 
         if (response.status === 200) {
-            navigation.navigate('WebView');
+            await setJwtKey(userId, serviceType);
         } else {
             Alert.alert('오류가 발생했습니다.');
         }
+    }
+
+    const setJwtKey = async(id, type) => {
+        const jwtKey = await UserStore.signUser(id, type);
+
+        await AsyncStorage.setItem('jwtKey', jwtKey);
+
+        navigation.navigate('WebView');
     }
 
     return (
