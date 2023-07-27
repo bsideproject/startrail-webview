@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "mamgwanboo-webview",
-    "slug": "mamgwanboo-webview",
+    "name": "startrail-webview",
+    "slug": "startrail-webview",
     "version": "1.0.0",
     "assetBundlePatterns": [
       "**/*"
     ]
   },
-  "name": "mamgwanboo-webview"
+  "name": "startrail-webview"
 }
