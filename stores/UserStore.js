@@ -109,8 +109,6 @@ class UserStore {
         }).then(res => {return res.data})
         .catch(error => console.error(error));
 
-        console.log("response body : " + JSON.stringify(response));
-
         this.setJwtKey(response);
 
         return response;
@@ -149,9 +147,6 @@ class UserStore {
         }
 
         if (serviceType === 'KAKAO') {
-
-            console.log("data : " + JSON.stringify(profile));
-
             const birthday = profile.birthday;
     
             const month = parseInt(birthday.slice(0,2));

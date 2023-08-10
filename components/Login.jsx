@@ -1,21 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { Image, StyleSheet, TouchableOpacity, View, Platform } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { Animated, StyleSheet, TouchableOpacity, View, ImageBackground } from 'react-native';
 import { login, getProfile } from '@react-native-seoul/kakao-login';
 import { v4 as uuid } from 'uuid';
-import appleAuth, { appleAuthAndroid } from '@invertase/react-native-apple-authentication';
+import { appleAuthAndroid } from '@invertase/react-native-apple-authentication';
 import jwtDecode from 'jwt-decode';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import UserStore from '../stores/UserStore';
-import { ImageBackground } from 'react-native';
 
 const Login = ({navigation}) => {
 
-    const baseUrl = 'https://www.byeoljachui.com';
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const fadeAnimBtn = useRef(new Animated.Value(0)).current;
 
-    // apple 로그인 전용 데이터
-    const [credentialStateForUser, updateCredentialStateForUser] = useState(-1);
-
-    const [sequence, setSequence] = useState('');
+    useEffect(() => {
+        Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 500,
+            delay: 300,
+            useNativeDriver: true,
+        }).start();
+        Animated.timing(fadeAnimBtn, {
+            toValue: 1,
+            duration: 500,
+            delay: 1300,
+            useNativeDriver: true,
+        }).start();
+    }, [fadeAnim]);
 
     useEffect(() => {
 
@@ -24,8 +34,6 @@ const Login = ({navigation}) => {
                 const saveData = await AsyncStorage.getItem('jwtKey');
                 if (saveData) {
                     UserStore.setJwtKey(saveData);
-
-                    // const parsedData = JSON.parse(saveData);
                     navigation.navigate('WebView');
                 }
             } catch (error) {
@@ -34,14 +42,6 @@ const Login = ({navigation}) => {
         };
 
         checkLoginStatus();
-
-        if (Platform.OS === 'ios') {
-            if (!appleAuth.isSupported) return;
-
-            fetchAndUpdateCredentialState().catch(error =>
-                updateCredentialStateForUser(`Error: ${error.code}`),
-            )
-        } 
     }, []);
 
     const signInWithKakao = async() => {
@@ -51,7 +51,6 @@ const Login = ({navigation}) => {
             if (kakaoResponse.accessToken) {
 
                 let id = '';
-                console.log("access Token : " + kakaoResponse.accessToken);
 
                 const profile = await getProfile().then((res) => {
                     id = res.id;
@@ -70,7 +69,7 @@ const Login = ({navigation}) => {
         }
     }
 
-    const sighWithAppleInAndroid = async() => {
+    const sighWithApple = async() => {
         const rawNonce = uuid();
         const state = uuid();
         try {
@@ -89,17 +88,8 @@ const Login = ({navigation}) => {
             const response = await appleAuthAndroid.signIn();
 
             if (response) {
-                const code = response.code;
-                const id_token = response.id_token;
-                const user = response.user;
-                const state = response.state;
 
-                console.log("Got auth code", code);
-                console.log("Got id_token", id_token);
-                console.log("Got user", user);
-                console.log("Got state", state);
-
-                const { email, email_verified, is_private_email, sub } = jwtDecode(response.id_token);
+                const { email } = jwtDecode(response.id_token);
 
                 await doLogin(email, 'APPLE', {});
             } 
@@ -109,65 +99,9 @@ const Login = ({navigation}) => {
         }
     }
 
-    const sighWithAppleInIOS = async() => {
-        console.warn('Beginning Apple Authentication');
-
-        try {
-            const response = await appleAuth.performRequest({
-                requestedOperation : appleAuth.Operation.LOGIN,
-                requestedScopes : [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL]
-            });
-
-            const {
-                newUser,
-                email,
-                nonce,
-                identityToken,
-                realUserStatus
-            } = response;
-
-            fetchAndUpdateCredentialState(newUser)
-                .catch(error => updateCredentialStateForUser(`Error : ${error.code}`));
-
-            if (response) {
-                const code = response.code;
-                const id_token = response.id_token;
-                const user = response.user;
-                const state = response.state;
-    
-                console.log("Got auth code", code);
-                console.log("Got id_token", id_token);
-                console.log("Got user", user);
-                console.log("Got state", state);
-    
-                const { email, email_verified, is_private_email, sub } = jwtDecode(response.id_token);
-    
-                await doLogin(email, 'APPLE', {});
-            }
-
-        } catch(error) {
-            console.error(error);
-        }
-    }
-
-    const fetchAndUpdateCredentialState = async(user) => {
-        if (user === null) {
-            updateCredentialStateForUser('N/A');
-        } else {
-            const credentialState = await appleAuth.getCredentialStateForUser(user);
-            if (credentialState === appleAuth.State.AUTHORIZED) {
-                updateCredentialStateForUser('AUTHORIZED');
-            } else {
-                updateCredentialStateForUser(credentialState);
-            }
-        }
-    }
-
     const doLogin = async(id, type, data) => {
 
         const backendResponse = await UserStore.existsUser(id, type);
-
-        console.log("backendResponse : " + JSON.stringify(backendResponse));
 
         UserStore.setServiceUserId(id);
         UserStore.setOauthServiceType(type);
@@ -177,8 +111,6 @@ const Login = ({navigation}) => {
         if (backendResponse) { 
             
             const jwtKey = await UserStore.signUser(id, type);
-
-            console.log("jwtKey : " + jwtKey);
 
             await AsyncStorage.setItem('jwtKey', jwtKey);
 
@@ -191,46 +123,63 @@ const Login = ({navigation}) => {
     }
 
     return (
-        <View style={styles.page}>
-            <ImageBackground source={require('./images/Login_Background.png')} 
-                style={styles.bgImg}>
-                <View style={styles.container}>
-                    <TouchableOpacity style={styles.buttonContainer}
-                        onPress={signInWithKakao}>
-                        <Image source={require('./images/KaKaoButton.png')} style={styles.buttonImage} />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.buttonContainer}
-                        onPress={Platform.OS === 'android' ? sighWithAppleInAndroid : sighWithAppleInIOS}>
-                        <Image source={require("./images/AppleButton.png")} style={styles.buttonImage} />
-                    </TouchableOpacity>
+        <View style={styles.container}>
+            <ImageBackground source={require('./images/IndexBg.png')} style={styles.bgImg} resizeMode='cover'>
+                <View style={styles.logoWrap}>
+                    <Animated.Image source={require('./images/Logo.png')} alt="logo" style={[styles.logo, { opacity: fadeAnim }]}/>
                 </View>
+                <View style={styles.textWrap}>
+                    <Animated.Text style={[styles.text, { opacity: fadeAnim }]}>내가 사랑하는 사람들과{"\n"}주고받은 마음을 기록해보세요</Animated.Text>
+                </View>
+                <TouchableOpacity style={styles.buttonWrap} onPress={signInWithKakao}>
+                    <Animated.Image source={require("./images/KaKaoLoginBtn.png")} alt="kakao-btn" style={[styles.button, { opacity: fadeAnimBtn }]} />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.buttonWrap} onPress={sighWithApple}>
+                    <Animated.Image source={require("./images/AppleLoginBtn.png")} alt="apple-btn" style={[styles.button, { opacity: fadeAnimBtn }]} />
+                </TouchableOpacity>
             </ImageBackground>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    page : {
+    container : {
         flex : 1,
     },
     bgImg : {
-        width : '100%',
-        height : '100%',
+        flex: 1,
+        justifyContent: 'center',
     }
     ,
-    container: {
-        flex: 1,
+    logoWrap : {
+        display: "flex",
+        alignItems : "center",
+        marginTop: -50,
+    },
+    logo : {
+        width: 80,
+        height: 108,
+    },
+    textWrap : {
+        marginTop : 24,
+        marginBottom: 110,
+    },
+    text : {
+        textAlign : "center",
+        color : "#818181",
+        fontSize: 12,
+        fontWeight: 500,
+    },
+    buttonWrap: {
         alignItems: "center",
-        justifyContent : "center",
-        backgroundColor : "#1E1E1E",
-        marginTop: 500,
+        marginTop: 16,
+        marginHorizontal: 44,
     },
-    buttonContainer : {
-        marginVertical: 10,
-    },
-    buttonImage : {
-        width: 200,
-        height: 50,
+    button : {
+        width : "100%",
+        height : 50,
+        borderRadius : 40,
+        overflow: "hidden",
     },
 });
 

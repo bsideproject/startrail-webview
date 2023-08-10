@@ -22,8 +22,7 @@ const MyWebView = ({route, navigation}) => {
             overScrollMode={'never'}
             onMessage={(event) => {
 
-                const message = event.nativeEvent.data;
-                console.log("event data : " + event.nativeEvent.data);
+                const message = event.nativeEvent.data; 
 
                 if (message === "logout") {
                     navigation.navigate('Login');
