@@ -148,19 +148,25 @@ class UserStore {
 
         if (serviceType === 'KAKAO') {
             const birthday = profile.birthday;
-    
-            const month = parseInt(birthday.slice(0,2));
-            const day = parseInt(birthday.slice(2));
-        
-            const birthDayObj = {
-                year : 0,
-                month : month,
-                day : day
-            };
-        
-            const sexType = profile.gender;
+
+            let birthDayObj = {};
+
+            const sexType = profile.gender?.toUpperCase();
         
             const ageRangeText = profile.ageRange;
+
+            if (birthday && birthday !== "null") {
+    
+                const month = parseInt(birthday.slice(0,2));
+                const day = parseInt(birthday.slice(2));
+
+                birthDayObj = {
+                    year : 0,
+                    month : month,
+                    day : day
+                };
+            }
+ 
         
             let ageRange = 'UNDER_TEEN';
     
@@ -205,8 +211,8 @@ class UserStore {
             userInformation = {
                 profileImageLink : profile.profileImageUrl,
                 profileNickname : profile.nickname,
-                sexType : sexType,
-                ageRangeType : ageRange,
+                ...(sexType && sexType !== "null" && {sexType : sexType}),
+                ...(ageRange && ageRange !== "null" && {ageRangeType : ageRange}),
                 birth : birthDayObj
             }
         }
