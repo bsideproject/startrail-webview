@@ -1,11 +1,4 @@
 {
-  "expo": {
-    "name": "startrail-webview",
-    "slug": "startrail-webview",
-    "version": "1.0.0",
-    "assetBundlePatterns": [
-      "**/*"
-    ]
-  },
-  "name": "startrail-webview"
+  "name": "iosStartrail",
+  "displayName": "iosStartrail"
 }
