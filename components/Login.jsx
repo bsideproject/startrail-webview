@@ -5,10 +5,14 @@ import {
   TouchableOpacity,
   View,
   ImageBackground,
+  Platform,
 } from "react-native";
 import { login, getProfile } from "@react-native-seoul/kakao-login";
 import { v4 as uuid } from "uuid";
-import { appleAuthAndroid } from "@invertase/react-native-apple-authentication";
+import {
+  appleAuth,
+  appleAuthAndroid,
+} from "@invertase/react-native-apple-authentication";
 import jwtDecode from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import UserStore from "../stores/UserStore";
@@ -72,7 +76,7 @@ const Login = ({ navigation }) => {
     }
   };
 
-  const sighWithApple = async () => {
+  const signWithAppleInAndroid = async () => {
     const rawNonce = uuid();
     const state = uuid();
     try {
@@ -89,6 +93,33 @@ const Login = ({ navigation }) => {
 
       if (response) {
         const { email } = jwtDecode(response.id_token);
+
+        await doLogin(email, "APPLE", {});
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const signWithAppleInIOS = async () => {
+    try {
+      const appleAuthRequestResponse = await appleAuth.performRequest({
+        requestedOperation: appleAuth.Operation.LOGIN,
+        requestedScopes: [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL],
+      });
+
+      const credentialState = await appleAuth.getCredentialStateForUser(
+        appleAuthRequestResponse.user
+      );
+
+      if (credentialState === appleAuth.State.AUTHORIZED) {
+        const {
+          user: newUser,
+          email,
+          nonce,
+          identityToken,
+          realUserStatus,
+        } = appleAuthRequestResponse;
 
         await doLogin(email, "APPLE", {});
       }
@@ -144,7 +175,12 @@ const Login = ({ navigation }) => {
             style={[styles.button, { opacity: fadeAnimBtn }]}
           />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.buttonWrap} onPress={sighWithApple}>
+        <TouchableOpacity
+          style={styles.buttonWrap}
+          onPress={
+            Platform.OS === "ios" ? signWithAppleInIOS : signWithAppleInAndroid
+          }
+        >
           <Animated.Image
             source={require("./images/AppleLoginBtn.png")}
             alt="apple-btn"
