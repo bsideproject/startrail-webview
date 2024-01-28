@@ -1,21 +1,22 @@
-import React, {useEffect, useRef} from 'react';
-import {
-  Animated,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  ImageBackground,
-  Platform,
-} from 'react-native';
-import {login, getProfile} from '@react-native-seoul/kakao-login';
-import 'react-native-get-random-values';
-import {v4 as uuid} from 'uuid';
 import {
   appleAuth,
   appleAuthAndroid,
 } from '@invertase/react-native-apple-authentication';
-import jwtDecode from 'jwt-decode';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {getProfile, login} from '@react-native-seoul/kakao-login';
+import jwtDecode from 'jwt-decode';
+import React, {useEffect, useRef} from 'react';
+import {
+  Alert,
+  Animated,
+  ImageBackground,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import 'react-native-get-random-values';
+import {v4 as uuid} from 'uuid';
 import UserStore from '../stores/UserStore';
 
 const Login = ({navigation}) => {
@@ -58,7 +59,6 @@ const Login = ({navigation}) => {
       const kakaoResponse = await login();
       if (kakaoResponse.accessToken) {
         let id = '';
-
         const profile = await getProfile()
           .then(res => {
             id = res.id;
@@ -68,8 +68,10 @@ const Login = ({navigation}) => {
             throw error;
           });
 
-        if (id && id.length > 0) {
-          await doLogin(id, 'KAKAO', profile);
+        if (id) {
+          doLogin(id, 'KAKAO', profile);
+        } else {
+          Alert.alert('오류입니다.');
         }
       }
     } catch (e) {
@@ -116,13 +118,12 @@ const Login = ({navigation}) => {
       if (credentialState === appleAuth.State.AUTHORIZED) {
         const {
           user: newUser,
-          email,
           nonce,
           identityToken,
           realUserStatus,
         } = appleAuthRequestResponse;
 
-        await doLogin(email, 'APPLE', {});
+        await doLogin(jwtDecode(identityToken).email, 'APPLE', {});
       }
     } catch (error) {
       console.error(error);
