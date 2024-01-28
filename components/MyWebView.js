@@ -53,6 +53,7 @@ const MyWebView = ({ route, navigation }) => {
           AsyncStorage.removeItem("jwtKey");
         }
 
+        // 카카오, 애플 나눠놓아야 할듯
         if (message === "withdrawal") {
           unlink();
 
