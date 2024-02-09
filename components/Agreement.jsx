@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     color : 'white',
     marginLeft : 10,
     fontSize : 20,
-    fontWeight : 700,
+    fontWeight : '700',
   },
   termBody: {
     flex : 2,
