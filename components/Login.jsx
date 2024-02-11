@@ -141,8 +141,6 @@ const Login = ({navigation}) => {
     if (backendResponse) {
       const jwtKey = await UserStore.signUser(id, type);
 
-      console.log(jwtKey);
-
       await AsyncStorage.setItem('jwtKey', jwtKey);
 
       navigation.navigate('WebView', jwtKey);
