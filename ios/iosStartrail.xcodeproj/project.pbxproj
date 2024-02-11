@@ -518,15 +518,16 @@
 				CODE_SIGN_ENTITLEMENTS = iosStartrail/iosStartrail.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 202308012315;
+				CURRENT_PROJECT_VERSION = 202402120115;
 				DEVELOPMENT_TEAM = XQ24HP64B3;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = iosStartrail/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4.5;
+				MARKETING_VERSION = 1.6.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -551,14 +552,15 @@
 				CODE_SIGN_ENTITLEMENTS = iosStartrail/iosStartrail.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 202308012315;
+				CURRENT_PROJECT_VERSION = 202402120115;
 				DEVELOPMENT_TEAM = XQ24HP64B3;
 				INFOPLIST_FILE = iosStartrail/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4.5;
+				MARKETING_VERSION = 1.6.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

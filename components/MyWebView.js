@@ -1,9 +1,9 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {unlink} from '@react-native-seoul/kakao-login';
-import React, {useEffect, useRef, useState} from 'react';
-import {BackHandler} from 'react-native';
-import {WebView} from 'react-native-webview';
-import UserStore from '../stores/UserStore';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { unlink } from "@react-native-seoul/kakao-login";
+import React, { useEffect, useRef, useState } from "react";
+import { BackHandler } from "react-native";
+import { WebView } from "react-native-webview";
+import UserStore from "../stores/UserStore";
 
 const INJECTED_JAVASCRIPT = `
 (function() {
@@ -29,8 +29,8 @@ const INJECTED_JAVASCRIPT = `
 true;
 `;
 
-const MyWebView = ({route, navigation}) => {
-  const BASE_URL = 'https://www.byeoljachui.com/';
+const MyWebView = ({ route, navigation }) => {
+  const BASE_URL = "https://www.byeoljachui.com/";
   const webview = useRef();
 
   const [isCanGoBack, setIsCanGoBack] = useState(false);
@@ -52,13 +52,13 @@ const MyWebView = ({route, navigation}) => {
 
   useEffect(() => {
     BackHandler.addEventListener(
-      'hardwareBackPress',
+      "hardwareBackPress",
       onPressHardwareBackButton,
     );
 
     return () => {
       BackHandler.removeEventListener(
-        'hardwareBackPress',
+        "hardwareBackPress",
         onPressHardwareBackButton,
       );
     };
@@ -70,37 +70,59 @@ const MyWebView = ({route, navigation}) => {
       pullToRefreshEnabled={true}
       startInLoadingState={true}
       allowsBackForwardNavigationGestures={true}
-      source={{uri: BASE_URL}}
+      source={{ uri: BASE_URL }}
       sharedCookiesEnabled={true}
-      mixedContentMode={'compatibility'}
-      originWhitelist={['https://*', 'http://*']}
-      overScrollMode={'never'}
+      mixedContentMode={"compatibility"}
+      originWhitelist={["https://*", "http://*"]}
+      overScrollMode={"never"}
       onMessage={event => {
         const message = event.nativeEvent.data;
 
-        if (message === 'logout') {
-          navigation.navigate('Login');
+        if (message === "logout") {
+          navigation.navigate("Login");
 
-          AsyncStorage.removeItem('jwtKey');
+          AsyncStorage.removeItem("jwtKey");
         }
 
         // 카카오, 애플 나눠놓아야 할듯
-        if (message === 'withdrawal') {
+        if (message === "withdrawal") {
           unlink();
 
-          navigation.navigate('Login');
+          navigation.navigate("Login");
 
-          AsyncStorage.removeItem('jwtKey');
+          AsyncStorage.removeItem("jwtKey");
         }
 
-        if (message === 'navigationStateChange') {
+        if (message === "navigationStateChange") {
           console.log(
-            'event.nativeEvent.canGoBack : ' + event.nativeEvent.canGoBack,
+            "event.nativeEvent.canGoBack : " + event.nativeEvent.canGoBack,
           );
           setIsCanGoBack(event.nativeEvent.canGoBack);
         }
       }}
-      injectedJavaScript={INJECTED_JAVASCRIPT}
+      injectedJavaScript={`
+(function() {
+  setTimeout(() => window.postMessage('${UserStore.getJwtKey}', '*'), 500);
+})();
+
+(function() {
+  function wrap(fn) {
+    return function wrapper() {
+      var res = fn.apply(this, arguments);
+      window.ReactNativeWebView.postMessage('navigationStateChange');
+      return res;
+    }
+  }
+
+  history.pushState = wrap(history.pushState);
+  history.replaceState = wrap(history.replaceState);
+  window.addEventListner('popstate', function() {
+    window.ReactNativeWebView.postMessage('navigationStateChange');
+  });
+})();
+
+true;
+`}
     />
   );
 };
