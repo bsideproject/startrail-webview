@@ -3,7 +3,6 @@ import React, { useEffect, useState, useRef } from "react";
 import { BackHandler } from "react-native";
 import { WebView } from "react-native-webview";
 import UserStore from "../stores/UserStore";
-import { logout } from "@react-native-seoul/kakao-login";
 
 const MyWebView = ({ route, navigation }) => {
   const BASE_URL = "https://www.byeoljachui.com/";
